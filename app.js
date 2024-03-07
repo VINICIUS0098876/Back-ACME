@@ -27,7 +27,7 @@ app.use((request, response, next) =>{
     response.header('Access-Control-Allow-Origin', '*')
 
     // Permite especificar como a API, sera requisitada ('GET', 'POST', 'PUT' e 'DELETE')
-    response.header('Access-Control-Allow-Methods', 'GET')
+    response.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
 
     // Ativa as confgurações de cors
     app.use(cors())
@@ -40,7 +40,8 @@ app.use((request, response, next) =>{
     const controllerFilmes = require('./controller/controller_filme.js')
 /*******************************************************************************************************/
 
-
+// Criando um objeto para controlar a chegada dos dados da requisição em formato JSON
+const bodyParserJSON = bodyParser.json()
 
 
 // EndPoint: Versão 1.0 que retorna os dados de um arquivo de filmes.
@@ -68,12 +69,11 @@ app.get('/v1/acmeFilmes/filmes', cors(), async function(request, response, next)
         }
     })
 
-
-
+/********************************** V2 DOS ENDPOINTS ********************************************/
 
 
     // -> EndPoint: Versão 2.0 - Retorna os dados de filme do Banco de Dados
-    app.get('/v2/acmeFilmes/filmes', cors(), async function(request, response){
+    app.get('/v2/acmeFilmes/filme', cors(), async function(request, response){
 
 
         // -> Chama a função da controller para retornar todos os filmes
@@ -84,7 +84,7 @@ app.get('/v1/acmeFilmes/filmes', cors(), async function(request, response, next)
         response.json(dadosFilmes)
     })
 
-
+    //EndPoint: Ele retorna os dados do filme filtrado pelo nome
     app.get('/v2/acmeFilmes/Filmes/Filtro', cors(), async function(request, response){
         let nome = request.query.nome
         let dadosFilmes = await controllerFilmes.getNomeFilme(nome)
@@ -93,8 +93,6 @@ app.get('/v1/acmeFilmes/filmes', cors(), async function(request, response, next)
         response.json(dadosFilmes)
     })
 
-    
-    
     // EndPoint: ele retorna os dados pelo id
     app.get('/v2/acmeFilmes/filme/:id', cors(), async function(request, response, next){
 
@@ -107,6 +105,25 @@ app.get('/v1/acmeFilmes/filmes', cors(), async function(request, response, next)
         response.status(dadosFilme.status_code)
         response.json(dadosFilme)
     })
+
+    //EndPoint: Ele insere dados sobre o filme
+    app.post('/v2/acmeFilmes/filme', cors(), bodyParserJSON, async function(request, response){
+
+        //Recebe todos os dados encaminhados na requisição pelo Body
+        let dadosBody = request.body
+
+        //Encaminha os dados para a controller enviar para o DAO
+        let resultDadosNovoFilme = await controllerFilmes.setInserirNovoFilme(dadosBody)
+        
+        response.status(resultDadosNovoFilme.status_code)
+        response.json(resultDadosNovoFilme)
+    })
+
+
+
+
+
+
 
 
     app.listen('8080', function(){
