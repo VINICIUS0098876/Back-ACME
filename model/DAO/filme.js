@@ -8,6 +8,7 @@
 
 // Importa de biblioteca do @prisma/client
 const { PrismaClient } = require('@prisma/client')
+const { sqltag } = require('@prisma/client/runtime/library')
 
 // Instacia da classe PrismaClient
 const prisma = new PrismaClient()
@@ -77,10 +78,57 @@ const insertFilme = async function(dadosFilme){
 }
 
 // Função para atualizar um filme no banco de dados;
-const updateFilme = async function() {}
+const updateFilme = async function(id, dadoAtualizado) {
+let sql
+try{
+    if(dadoAtualizado.data_relancamento != '' &&
+    dadoAtualizado.data_relancamento   != null &&
+    dadoAtualizado.data_relancamento   != undefined){
+        sql = `update tbl_filme set 
+        nome = ${dadoAtualizado.nome},
+        sinopse = ${dadoAtualizado.sinopse},
+        duracao = ${dadoAtualizado.duracao},
+        data_lancamento = ${dadoAtualizado.data_lancamento},
+        data_relancamento = ${dadoAtualizado.data_relancamento},
+        foto_capa = ${dadoAtualizado.foto_capa},
+        valor_unitario = ${dadoAtualizado.valor_unitario}
+        where
+        id = ${id}`
+    }else{
+        sql = `update tbl_filme set 
+        nome = ${dadoAtualizado.nome},
+        sinopse = ${dadoAtualizado.sinopse},
+        duracao = ${dadoAtualizado.duracao},
+        data_lancamento = ${dadoAtualizado.data_lancamento},
+        data_relancamento = ${dadoAtualizado.data_relancamento},
+        foto_capa = ${dadoAtualizado.foto_capa},
+        valor_unitario = ${dadoAtualizado.valor_unitario}
+        where
+        id = ${id}`
+    }
+    let result = await prisma.$executeRawUnsafe(sql)
+    
+    if(result){
+       return true
+    }else{
+       return false
+    }
+}catch(error){
+    return false
+}
+}
 
 // Função para excluir um filme no banco de dados;
-const deleteFilme = async function(){}
+const deleteFilme = async function(id){
+    try {
+        const sql = `delete from tbl_filme where id = ${id}`
+        let rsFilme = await prisma.$executeRawUnsafe(sql)
+        return rsFilme
+
+    } catch (error) {
+        return false
+    }
+}
 
 // Função para listar todos os filmes do banco de dados;
 const selectAllFilmes = async function(){

@@ -109,14 +109,27 @@ app.get('/v1/acmeFilmes/filmes', cors(), async function(request, response, next)
     //EndPoint: Ele insere dados sobre o filme
     app.post('/v2/acmeFilmes/filme', cors(), bodyParserJSON, async function(request, response){
 
+        // Recebe o content-type da requisição
+        let contentType = request.headers['content-type']
+
         //Recebe todos os dados encaminhados na requisição pelo Body
         let dadosBody = request.body
 
         //Encaminha os dados para a controller enviar para o DAO
-        let resultDadosNovoFilme = await controllerFilmes.setInserirNovoFilme(dadosBody)
+        let resultDadosNovoFilme = await controllerFilmes.setInserirNovoFilme(dadosBody, contentType)
         
         response.status(resultDadosNovoFilme.status_code)
         response.json(resultDadosNovoFilme)
+    })
+
+    //EndPoint: Ele deleta os dados pelo id 
+    app.delete('/v2/acmeFilmes/filme/:id', cors(), async function(request, response, next){
+        let idFilme = request.params.id
+
+        let dadosFilme = await controllerFilmes.setExcluirFilme(idFilme)
+
+        response.status(dadosFilme.status_code)
+        response.json(dadosFilme)
     })
 
 
